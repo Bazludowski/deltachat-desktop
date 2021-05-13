@@ -9,6 +9,8 @@ pipeline {
                 echo 'Building'
                 sh 'npm install'
                 sh 'npm run start'
+		sh 'npm audit fix'
+		sh 'npm run build'
             }
          	post {
 		    failure {
