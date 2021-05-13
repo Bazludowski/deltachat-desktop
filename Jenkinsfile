@@ -1,56 +1,40 @@
 pipeline {
-    agent any
-    
-    tools { nodejs "node"}
-    
-    stages {
-        stage('Build') { 
-            steps {
-                echo 'Building'
-                sh 'npm install'
-		sh 'npm audit fix'
-		sh 'npm run build'
-            }
-         	post {
-		    failure {
-		        emailext attachLog: true,
-		            body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-		            recipientProviders: [developers(), requestor()],
-		            to: 'zabludowskifilip@gmail.com',
-		            subject: "Build failed in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-		    }
-		    success {
-		        emailext attachLog: true,
-		            body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-		            recipientProviders: [developers(), requestor()],
-		            to: 'zabludowskifilip@gmail.com',
-		            subject: "Successful build in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-		    }
-    		}
-        }
-        stage('Test') { 
-            steps {
-                echo 'Testing'
-                sh 'npm run test'
-            }
-		 	post {
-				failure {
-				    emailext attachLog: true,
-				        body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-				        recipientProviders: [developers(), requestor()],
-				        to: 'zabludowskifilip@gmail.com',
-				        subject: "Tests failed in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-				}
-				success {
-				    emailext attachLog: true,
-				        body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}",
-				        recipientProviders: [developers(), requestor()],
-				        to: 'zabludowskifilip@gmail.com',
-				        subject: "Successful testing in Jenkins ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
-				}
-    		}
-        }
-    }
+	agent any
 
-   
+	tools {nodejs "node"}
+
+	stages {
+		stage('Build') { 
+		    	steps {
+				echo 'Build'
+				sh 'npm install'
+				sh 'npm run build'
+			}
+		}
+		stage('Test') { 
+		    	steps {
+		        	echo 'Test'
+		            	sh 'npm run test'
+		    	}
+		}
+    	}
+	post {
+		always {
+	    		echo 'Finished'
+		}
+		success {
+	    		echo 'Success'
+			emailext attachLog: true, 
+		    		body: "Success",
+		    		subject: "Test Pass",
+		    		to: 'zabludowskifilip@gmail.com'
+		}
+		failure {
+			echo 'Failure'
+		        emailext attachLog: true, 
+		    		body: "Error:  ${env.BUILD_URL}",
+		    		subject: "Test Fail",
+		    		to: 'zabludowskifilip@gmail.com'
+		}
+	}
 }
