@@ -18,6 +18,27 @@ pipeline {
 		            	sh 'npm run test'
 		    	}
 		}
+		stage('Deploy'){
+			steps { 
+				echo 'Deploy'
+				sh 'docker build -t deltachat-deploy -f Dockerfile-deploy .'
+				}
+			post {
+				success {
+					echo 'Success'
+					emailext attachlog: true,
+						body: "Successful Deploy"
+						to: 'zabludowskifilip@gmail.com'	
+						subject: "Successful deploy"		
+				}
+				failure {
+					echo 'Failure'
+					emailext attachlog: true,
+						body: "Failed Deploy"
+						to: 'zabludowskifilip@gmail.com'	
+						subject: "Failed deploy"		
+				}
+}
     	}
 	post {
 		always {
